@@ -15,4 +15,3 @@ def create_vectorstore(documents):
     db = FAISS.from_documents(docs, embeddings)
 
     return db
-``
