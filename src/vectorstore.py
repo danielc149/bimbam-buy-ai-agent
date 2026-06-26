@@ -1,6 +1,6 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
 
 def create_vectorstore(documents):
     splitter = RecursiveCharacterTextSplitter(
@@ -10,7 +10,7 @@ def create_vectorstore(documents):
 
     docs = splitter.split_documents(documents)
 
-    embeddings = OpenAIEmbeddings()
+    embeddings = OllamaEmbeddings(model="llama3")
 
     db = FAISS.from_documents(docs, embeddings)
     
