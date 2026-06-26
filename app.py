@@ -15,17 +15,31 @@ db = create_vectorstore(docs)
 print("Inicializando agente...")
 qa = create_agent(db)
 
+# 🔹 memoria simple
+chat_history = []
+
 @app.get("/")
 def home():
     return {"message": "Santos Pegasus AI Agent activo"}
 
 @app.get("/ask")
 def ask(question: str):
+    # guardar pregunta
+    chat_history.append({"role": "user", "content": question})
+
+    # preguntar agente
     result = qa.invoke({"query": question})
+    answer = result["result"]
+
+    # guardar respuesta
+    chat_history.append({"role": "assistant", "content": answer})
+
     return {
-        "answer": result["result"]
+        "answer": answer,
+        "history": chat_history
     }
 
+# ✅ INTERFAZ CORRECTA
 @app.get("/chat", response_class=HTMLResponse)
 def chat():
     return """
@@ -35,10 +49,14 @@ def chat():
         </head>
         <body>
             <h1>💬 Santos Pegasus AI Agent</h1>
+
             <form action="/ask" method="get">
                 <input type="text" name="question" placeholder="Escribe tu pregunta" style="width:300px;">
                 <button type="submit">Enviar</button>
             </form>
+
+            <p>Tip: también puedes probar preguntas en inglés</p>
+
         </body>
     </html>
     """
