@@ -43,15 +43,34 @@ def ask(question: str):
 @app.get("/chat", response_class=HTMLResponse)
 def chat():
     return """
-    <html>
-        <head>
-            <title>Santos Pegasus AI</title>
-        </head>
-        <body>
-            <h1>💬 Santos Pegasus AI Agent</h1>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Santos Pegasus AI</title>
+    </head>
+    <body>
+        <h1>💬 Santos Pegasus AI Agent</h1>
 
-            <input id="question" type="text" placeholder="Escribe tu pregunta" style="width:300px;">
-            <button onclick="sendQuestion()">Enviar</button>
+        <input id="question" type="text" placeholder="Escribe tu pregunta" style="width:300px;">
+        <button onclick="sendQuestion()">Enviar</button>
 
-            <div id="chatbox" style="margin-top:20px;"></div>
+        <div id="chatbox" style="margin-top:20px;"></div>
 
+        <script>
+            async function sendQuestion() {
+                let question = document.getElementById("question").value;
+
+                let response = await fetch(`/ask?question=${encodeURIComponent(question)}`);
+                let data = await response.json();
+
+                let chatbox = document.getElementById("chatbox");
+
+                chatbox.innerHTML += "<p><b>Tú:</b> " + question + "</p>";
+                chatbox.innerHTML += "<p><b>IA:</b> " + data.answer + "</p>";
+
+                document.getElementById("question").value = "";
+            }
+        </script>
+    </body>
+</html>
+"""
