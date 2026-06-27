@@ -8,7 +8,7 @@ Este proyecto implementa un sistema RAG (Retrieval-Augmented Generation) combina
 
 ## 📸 Demo
 
-Incluye una captura de pantalla del sistema en funcionamiento (screenshot.png) en la raíz del proyecto.
+![Demo](screenshot.png)
 
 ---
 
