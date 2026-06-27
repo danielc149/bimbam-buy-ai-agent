@@ -15,62 +15,63 @@ db = create_vectorstore(docs)
 print("Inicializando agente...")
 qa = create_agent(db)
 
-# memoria simple en backend
-chat_history = []
-
 @app.get("/")
 def home():
-    return {"message": "Santos Pegasus AI Agent activo"}
+    return {"message": "Bimbam Buy AI Agent activo"}
 
 @app.get("/ask")
 def ask(question: str):
-    # guardar pregunta
-    chat_history.append({"role": "user", "content": question})
-
-    # preguntar al agente
     result = qa.invoke({"query": question})
-    answer = result["result"]
+    return {"answer": result["result"]}
 
-    # guardar respuesta
-    chat_history.append({"role": "assistant", "content": answer})
-
-    return {
-        "answer": answer,
-        "history": chat_history
-    }
-
-# ✅ interfaz tipo chat estilo simple
 @app.get("/chat", response_class=HTMLResponse)
 def chat():
     return """
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Santos Pegasus AI</title>
-    </head>
-    <body>
-        <h1>💬 Santos Pegasus AI Agent</h1>
+<head>
+    <title>Bimbam Buy AI Agent</title>
+</head>
+<body>
+    <h1>💬 Bimbam Buy AI Agent</h1>
 
-        <input id="question" type="text" placeholder="Escribe tu pregunta" style="width:300px;">
-        <button onclick="sendQuestion()">Enviar</button>
+    <p style="margin-top:-10px; color:gray; font-size:14px;">
+        Asistente inteligente para consultas internas de Bimbam Buy
+    </p>
 
-        <div id="chatbox" style="margin-top:20px;"></div>
+    <input id="question" type="text" placeholder="Escribe tu pregunta..." style="width:300px;">
+    <button onclick="sendQuestion()">Enviar</button>
 
-        <script>
-            async function sendQuestion() {
-                let question = document.getElementById("question").value;
+    <div id="response" style="margin-top:20px; font-size:16px;"></div>
 
-                let response = await fetch(`/ask?question=${encodeURIComponent(question)}`);
-                let data = await response.json();
+    <script>
+        async function sendQuestion() {
+            let button = document.querySelector("button");
+            let question = document.getElementById("question").value;
 
-                let chatbox = document.getElementById("chatbox");
+            button.innerText = "Enviando...";
+            button.disabled = true;
+            button.style.backgroundColor = "orange";
 
-                chatbox.innerHTML += "<p><b>Tú:</b> " + question + "</p>";
-                chatbox.innerHTML += "<p><b>IA:</b> " + data.answer + "</p>";
+            let response = await fetch(`/ask?question=${encodeURIComponent(question)}`);
+            let data = await response.json();
 
-                document.getElementById("question").value = "";
-            }
-        </script>
-    </body>
+            let cleanAnswer = data.answer
+                .replace(/\\n/g, "<br>")
+                .replace(/\\*/g, "")
+                .replace(/\\(.*?\\)/g, "");
+
+            document.getElementById("response").innerHTML +=
+                "<p><b>Pregunta:</b> " + question + "</p>" +
+                "<p><b>Respuesta:</b> " + cleanAnswer + "</p><hr>";
+
+            button.innerText = "Enviar";
+            button.disabled = false;
+            button.style.backgroundColor = "";
+
+            document.getElementById("question").value = "";
+        }
+    </script>
+</body>
 </html>
 """

@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\glori\santos-pegasus-ai-agent\venv"
+VIRTUAL_ENV="C:\Users\glori\bimbam-buy-ai-agent\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
