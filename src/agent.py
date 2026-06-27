@@ -9,7 +9,7 @@ def create_agent(vectorstore):
     )
 
     llm = Ollama(
-        model="llama3",
+        model="mistral",
         system="""
 Responde SIEMPRE en el idioma del usuario.
 
