@@ -19,10 +19,44 @@ qa = create_agent(db)
 def home():
     return {"message": "Bimbam Buy AI Agent activo"}
 
+
 @app.get("/ask")
 def ask(question: str):
-    result = qa.invoke({"query": question})
-    return {"answer": result["result"]}
+    from langchain_community.llms import Ollama
+    from src.vectorstore import create_vectorstore
+    from src.loader import load_documents
+
+    print(f"Pregunta recibida: {question}")
+
+    # cargar vectorstore
+    docs = load_documents()
+    db = create_vectorstore(docs)
+
+    retriever = db.as_retriever(search_kwargs={"k": 1})
+    results = retriever.invoke(question)
+
+    context = results[0].page_content[:300] if results else ""
+
+    llm = Ollama(
+        model="mistral",
+        num_predict=60
+    )
+
+    prompt = f"""
+Contexto:
+{context}
+
+Pregunta:
+{question}
+
+Responde brevemente:
+"""
+
+    response = llm.invoke(prompt)
+
+    print("Respuesta generada")
+
+    return {"answer": response}
 
 @app.get("/chat", response_class=HTMLResponse)
 def chat():

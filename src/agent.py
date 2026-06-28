@@ -4,12 +4,12 @@ from langchain_community.llms import Ollama
 def create_agent(vectorstore):
 
     retriever = vectorstore.as_retriever(
-        search_type="mmr",
-        search_kwargs={"k": 12, "fetch_k": 20}
+        search_kwargs={"k": 1}
     )
 
     llm = Ollama(
         model="mistral",
+        num_predict=100,
         system="""
 Responde SIEMPRE en el idioma del usuario.
 
