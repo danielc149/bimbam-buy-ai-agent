@@ -1,37 +1,26 @@
 # 💬 Bimbam Buy AI Agent (RAG System)
 
-Asistente inteligente basado en IA que responde preguntas utilizando documentos internos de la empresa Bimbam Buy.
-
+Asistente inteligente basado en IA que responde preguntas utilizando documentos internos de la empresa Bimbam Buy.  
 Este proyecto implementa un sistema RAG (Retrieval-Augmented Generation) combinando búsqueda semántica con un modelo LLM local.
 
 ---
 
-## 📸 Demo
-
+## 🎥 Demo en funcionamiento
 ![Demo](screenshot.png)
+👉 https://drive.google.com/file/d/1mfXP6inQPzfcls1KfquPPcjMPoDu89gf/view?usp=sharing&t=16.497
+
+🌐 Aplicación desplegada en OCI:
+👉 http://129.80.234.155:8000/chat
 
 ---
 
 ## 🚀 Características
-
 - Consulta documentos PDF empresariales
 - Respuestas basadas en información real
-- Soporte multilenguaje (español, inglés, portugués)
 - Interfaz web tipo chat
-- Uso de modelo local (Ollama, sin costos de API)
-- Arquitectura RAG completa
-
----
-
-## 📚 Documentos utilizados
-
-Ubicados en la carpeta `data/`:
-
-- Política de Reembolsos y Devoluciones
-- Programa de Afiliados
-- Guía de Envíos
-- Métodos de Pago
-- Manual de Garantía
+- Sistema RAG completo
+- Modelo local con Ollama (Mistral)
+- Sin dependencia de APIs externas
 
 ---
 
@@ -39,115 +28,176 @@ Ubicados en la carpeta `data/`:
 
 Flujo del sistema:
 
-PDF → carga → fragmentación → embeddings → FAISS → retrieval → LLM → respuesta
+PDF → carga → fragmentación → embeddings → FAISS (faiss_index) → retrieval → LLM (Ollama - Mistral) → respuesta
 
-Tecnologías utilizadas:
-
+Tecnologías:
 - Python
 - FastAPI
 - LangChain
 - FAISS
-- Ollama (llama3 + embeddings)
+- Ollama (mistral + nomic-embed-text)
 - HTML + JavaScript
 
 ---
 
-## ⚙️ Instalación
+## ⚙️ Instalación local
 
 ### 1. Clonar repositorio
 
+```
 git clone https://github.com/danielc149/bimbam-buy-ai-agent.git
 cd bimbam-buy-ai-agent
+```
 
 ### 2. Crear entorno virtual
 
+```
 python -m venv venv
-
-Activar:
-
 source venv/Scripts/activate
+```
 
 ### 3. Instalar dependencias
 
+```
 pip install -r requirements.txt
+```
 
 ### 4. Instalar Ollama
 
-https://ollama.com
+👉 https://ollama.com
 
 ### 5. Descargar modelos
 
-ollama pull llama3
+```
+ollama pull mistral
 ollama pull nomic-embed-text
+```
 
-### 6. Ejecutar aplicación
+### 6. Generar o usar FAISS (faiss_index)
 
-python -m uvicorn app:app --reload
+La primera vez que ejecutes el proyecto se generará automáticamente el índice FAISS a partir de los documentos.
 
-### 7. Abrir en navegador
+Alternativamente, puedes incluir la carpeta `faiss_index/` en el repositorio (recomendado) para evitar regenerar embeddings.
 
-http://127.0.0.1:8000/chat
+### 7. Ejecutar aplicación
+
+```
+uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+### 8. Abrir en navegador
+
+👉 http://127.0.0.1:8000/chat
 
 ---
 
-## 💬 Uso
+## ☁️ Deploy en OCI (Paso a paso completo)
 
-Ejemplos de preguntas:
+1. Crear cuenta en Oracle Cloud (Free Trial ~30 días)
+2. Crear instancia Compute (recomendado: VM.Standard.E2.1 - 8GB RAM)
+3. Conectarse por SSH
+4. Instalar dependencias:
 
-- ¿Qué hacer si un pago fue rechazado?
-- ¿Qué cubre la garantía?
-- How many days does a refund take?
-- ¿Cómo funciona el programa de afiliados?
+```
+sudo dnf update -y
+sudo dnf install git -y
+```
+
+5. Instalar Ollama:
+
+```
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+6. Clonar repositorio:
+
+```
+git clone https://github.com/danielc149/bimbam-buy-ai-agent.git
+cd bimbam-buy-ai-agent
+```
+
+7. Crear entorno virtual:
+
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+8. Descargar modelos:
+
+```
+ollama pull mistral
+ollama pull nomic-embed-text
+```
+
+9. Asegurar FAISS:
+
+👉 Incluir carpeta `faiss_index/` en el repo para evitar recomputar embeddings
+
+10. Abrir puerto 8000 en reglas de seguridad (OCI)
+
+11. Ejecutar app:
+
+```
+uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+12. Acceder desde navegador:
+
+👉 http://IP_PUBLICA:8000/chat
+
+---
+
+## 💬 Ejemplos de preguntas
+
+👉 ¿Qué pasa si un pedido se retrasa?
+👉 ¿Qué hacer si un pago fue rechazado?
+👉 ¿En cuánto tiempo se hace un reembolso?
+👉 ¿Qué cubre la garantía?
+
+---
+
+## ✅ Ejemplos de respuestas
+
+**¿Qué cubre la garantía?**
+
+Cubre fallas de fabricación, problemas de funcionamiento y defectos técnicos no causados por el usuario.
+
+**¿Qué pasa si un pedido se retrasa?**
+
+Se revisa el estado del envío con el operador y se identifican incidencias.
+
+**¿En cuánto tiempo se hace un reembolso?**
+
+Entre 5 y 10 días hábiles dependiendo del método de pago.
+
+**¿Qué hacer si un pago fue rechazado?**
+
+Verificar fondos, datos de tarjeta y autorización bancaria.
 
 ---
 
 ## ⚠️ Limitaciones
 
-- Algunos documentos no contienen respuestas explícitas
-- El sistema puede entregar respuestas interpretativas cuando la información es parcial
-- El modelo local puede mostrar variaciones en el idioma de salida
-- La precisión depende del wording de la pregunta (limitación natural de RAG)
+- Respuestas pueden tardar (30s–2min) en CPU sin GPU
+- En Oci con la instancia escogida puede tardar de 2 a 4 minutos. 
+- Depende de calidad de documentos
+- El modelo puede generar respuestas aproximadas
 
 ---
 
-## 🧠 Consideraciones reales
+## 🧠 Nota técnica
 
-- El sistema es sensible a cómo se formula la pregunta
-- Algunos documentos contienen información implícita
-- El modelo puede inferir respuestas
+Este sistema ejecuta el modelo LLM localmente con Ollama, sin usar APIs externas como ChatGPT o Gemini. Esto aumenta la latencia pero garantiza independencia y control total del sistema.
 
 ---
 
-## ✅ Mejoras implementadas
+## 🏁 Estado
 
-- Ajuste de fragmentación (chunk_size)
-- Uso de MMR en retrieval
-- Respuestas interpretativas
-- UI sin recarga
-- Feedback visual en botón
-
----
-
-## 🎨 Interfaz
-
-- Input persistente
-- Respuestas dinámicas
-- Historial local
-
----
-
-## 🔒 Consideraciones técnicas
-
-- Sin base de datos
-- Sin almacenamiento de sesiones
-- Optimizado para bajo consumo
-- Sin APIs externas
-
----
-
-## 🏁 Estado del proyecto
-
-Proyecto funcional que demuestra implementación de RAG y manejo de limitaciones reales.
+✅ Proyecto funcional
+✅ Deploy en OCI
+✅ RAG implementado correctamente
 
 ---
 
